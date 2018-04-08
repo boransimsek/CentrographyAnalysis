@@ -1,11 +1,10 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Centrography.aspx.cs" Inherits="CentrographyAnalysis.Centrography" %>
-
-<asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="TestPage.aspx.cs" Inherits="CentrographyAnalysis.TestPage" %>
+<asp:Content ID="TestBodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <asp:Label runat="server" ID="lblTest"></asp:Label>
     <button id="btnTest" onclick="return getMessage();">Test</button>
 
-    <h2>Parameters</h2>
-    <div class="well">
+    <%--<h2>Parameters</h2>--%>
+    <div class="well" style="margin-top: 4%;">
 
         <div class="container">
             <div class="col-md-4">
@@ -55,23 +54,39 @@
 
         <div class="container" style="margin-top: 15px;">
             <div class="col-md-3">
+
                 <label for="workType">Work Type:</label>
                 <input type="checkbox" id="workType" checked="checked" data-off-text="Offline" data-on-text="Online" />
+
+
+
                 <%--<select name="slider" id="workType" data-role="slider">
                     <option value="off">Offline</option>
                     <option value="on">Online</option>
                 </select>--%>
             </div>
             <div class="col-md-2">
-                <input type="text" class="form-control" id="txtStep" placeholder="Step Number"/>
+                <input type="text" class="form-control" id="txtStep" placeholder="Step (Degrees)" />
             </div>
             <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <button type="button" class="btn btn-success" id="btnCentralize" onclick="return centralize();">Centralize</button>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-block btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
             </div>
-            <div class="col-md-3">
-                <button type="button" class="btn btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-block btn-success" id="btnCentralize" onclick="return centralize();">Centralize</button>
             </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-block btn-success" id="btnCircle" onclick="return putCircle();">Add Circle</button>
+            </div>
+        </div>
+        <div class="container" style="margin-top: 15px;">
+            <div class="col-md-3">
+                <label for="mapType">Map Type:</label>
+                <input type="checkbox" id="mapType" data-off-text="Normal" data-on-text="Heat" />
+            </div>
+
         </div>
     </div>
     <style>
@@ -92,9 +107,9 @@
     <div id='legend' style='display: none;'>
         <strong>Centrography Analysis on Earthquakes</strong>
         <nav class='legend clearfix'>
+            <span style='background: #BAD00B;'></span>
             <span style='background: #19D359;'></span>
             <span style='background: #006999;'></span>
-            <span style='background: #BAD00B;'></span>
             <span style='background: #D28611;'></span>
             <span style='background: #E10020;'></span>
             <label>< 3</label>
@@ -138,6 +153,7 @@
         function init() {
             bindDateDesign();
             $("#workType").bootstrapSwitch();
+            $("#mapType").bootstrapSwitch();
             loadMap();
             myLayer = L.mapbox.featureLayer();
         }
@@ -152,7 +168,10 @@
                 .setView([39, 35.50], 5);
             map.legendControl.addLegend(document.getElementById('legend').innerHTML);
             map.on('zoomend', function () {
-                if (centerLayer != null) {
+                if (map.getZoom() < 2) {
+                    map.setZoom(2);
+                }
+                if (centerGeoJson != null) {
                     centralizeTest();
                 }
             });
@@ -164,7 +183,7 @@
         }
 
         function getMessage() {
-            var res = CentrographyAjax.GetResponseFromService();
+            var res = TestAjax.GetResponseFromService();
             alert(res.value);
             return false;
         }
@@ -186,10 +205,11 @@
 
         function searchEarthquakes() {
             map.removeLayer(myLayer);
-            //if (centerGeoJson != null)
-            //    centerGeoJson = null;
-            if (centerLayer != null)
+            if (centerLayer != null) {
                 map.removeLayer(centerLayer);
+                centerGeoJson.features = [];
+            }
+
             if (heat != null)
                 map.removeLayer(heat);
 
@@ -201,12 +221,14 @@
             var minLng = $("#txtMinLongitude").val();
             var maxLng = $("#txtMaxLongitude").val();
             if ($("#workType").bootstrapSwitch("state")) {
-                var res = CentrographyAjax.GetEarthquakes(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                //var res = CentroAjax.GetEarthquakes(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                var res = TestAjax.GetEarthquakes();
                 var list = res.value;
                 curList = list;
                 bindEarthquakes(list);
             } else {
-                var res = CentrographyAjax.GetEarthquakesOffline(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                //var res = CentroAjax.GetEarthquakesOffline(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                var res = TestAjax.GetEarthquakes();
                 //var res = CentrographyAjax.GetEarthquakesOffline();
                 var list = res.value;
                 curList = list;
@@ -219,11 +241,14 @@
         function bindEarthquakes(list) {
 
             myLayer = L.mapbox.featureLayer();
-            heat = L.heatLayer([], { maxZoom: 10 }).addTo(map);
+            heat = L.heatLayer([], { maxZoom: 8 }).addTo(map);
+            var isHeat = $("#mapType").bootstrapSwitch('state');
+
             curGeoJson = {
                 type: 'FeatureCollection',
                 features: []
             };
+
 
             list.forEach(function (item) {
                 var resJson = createEarthquakeFeature(item);
@@ -234,16 +259,23 @@
                     feature = marker.feature;
 
                 marker.setIcon(L.icon(feature.properties.icon));
+
+                if (isHeat) {
+                    heat.addLatLng(marker._latlng);
+                }
+
+
                 //heat.addLatLng(marker._latlng);
-                
+
             });
             myLayer.setGeoJSON(curGeoJson);
-            map.addLayer(myLayer);
+            if (!isHeat)
+                map.addLayer(myLayer);
             //centralizeTest();
             map.fitBounds(myLayer.getBounds());
         }
 
-        function bindCentralizedEarthquakes(list) {
+        function bindCentralizedEarthquakes(item) {
 
             //centerLayer = L.mapbox.featureLayer();
             centerGeoJson = {
@@ -251,17 +283,17 @@
                 features: []
             };
 
-            list.forEach(function (item) {
+            //list.forEach(function (item) {
                 var resJson = createEarthquakeFeature(item);
                 centerGeoJson.features.push(resJson);
-            });
+            //});
 
             //myLayer.setGeoJSON(curGeoJson);
             //map.addLayer(myLayer);
             centralizeTest();
             //map.fitBounds(myLayer.getBounds());
         }
-
+        //L.circle([centerItem.Latitude, centerItem.Longitude], centerItem.Magnitude * 1000).addTo(map);
         function createEarthquakeFeature(item) {
             var res = {};
             res.type = 'Feature';
@@ -271,14 +303,13 @@
             res.geometry.coordinates.push(item.Longitude);
             res.geometry.coordinates.push(item.Latitude);
             res.properties = {};
-            res.properties.title = item.Title;
+            res.properties.title = "Earthquake";
             res.properties.magnitude = item.Magnitude;
-            res.properties.description = "Mag: " + item.Magnitude + " - Depth: " + item.Depth + " - " + item.AlertType + " - " + item.EventDate;
-            res.properties.depth = item.Depth;
+            res.properties.description = "Magnitude: " + item.Magnitude + "\n";
+            res.properties.depth = 1;
             //res.properties['marker-size'] = 'small';
             //res.properties['marker-color'] = '#BE9A6B';
             res.properties.icon = {};
-            
             //res.properties.icon.iconUrl = './Content/Images/bluedot.png';
             res.properties.icon.iconUrl = getIconByMagnitude(item.Magnitude);
             res.properties.icon.className = 'dot';
@@ -296,29 +327,29 @@
                 return './Content/Images/pin_orange.png';
             }
             else if (magnitude < 6 && magnitude >= 5) {
-                return './Content/Images/pin_yellow.png';
+                return './Content/Images/pin_blue.png';
             }
             else if (magnitude < 5 && magnitude >= 3) {
-                return './Content/Images/pin_blue.png';
-            } else {
                 return './Content/Images/pin_green.png';
+            } else {
+                return './Content/Images/pin_yellow.png';
             }
         }
 
         function getIconSizeByMagnitude(magnitude) {
             if (magnitude >= 7) {
-                return 30;
+                return 40;
             }
             else if (magnitude < 7 && magnitude >= 6) {
-                return 25;
+                return 30;
             }
             else if (magnitude < 6 && magnitude >= 5) {
                 return 20;
             }
             else if (magnitude < 5 && magnitude >= 3) {
-                return 15;
-            } else {
                 return 10;
+            } else {
+                return 8;
             }
         }
 
@@ -332,16 +363,18 @@
                     //    // Here we use the `count` property in GeoJSON verbatim: if it's
                     //    // to small or two large, we can use basic math in Javascript to
                     //    // adjust it so that it fits the map better.
-                    //    depth: feature.properties.depth,
+                    //    //depth: feature.properties.depth,
                     //    magnitude: feature.properties.magnitude,
                     //    //radius: (feature.properties.magnitude * 130000.0) / zoomPixel[map.getZoom()]
                     //    radius: (feature.properties.magnitude * 1000) / zoomPixel[map.getZoom()]
+                    //    //radius: (feature.properties.magnitude * 1000)
                     //});
                     var circle = L.circle([latlng.lat, latlng.lng], feature.properties.magnitude * 1000);
                     //var icon_live = L.icon({ iconUrl: './Content/marker.png', iconSize: [35, 35] });
                     //feature.properties.icon = icon_live;
                     circle.on("click", function () {
-                        alert(this.feature.properties.depth + " " + this.feature.properties.magnitude);
+                        //alert(this.feature.properties.depth + " " + this.feature.properties.magnitude);
+                        alert(this.feature.properties.magnitude + " -- " + zoomPixel[map.getZoom()]);
                     });
                     return circle;
                 }
@@ -350,10 +383,25 @@
 
         function centralize() {
             var step = $("#txtStep").val();
-            //var res = CentrographyAjax.CentralizeTest(curList, step);
-            var res = CentrographyAjax.CentraliseRecursive(curList);
-            var list = res.value;
-            bindCentralizedEarthquakes(list);
+            var res = TestAjax.CentralizeTest(curList, step);
+            var centerItem = res.value;
+            bindCentralizedEarthquakes(centerItem);
+            return false;
+        }
+
+        function putCircle() {
+            L.circle([35.5, 35.5], 200000).addTo(map);
+        }
+
+        function getCenterCircle() {
+            //TestAjax.CentralizeTest();
+
+            //var step = $("#txtStep").val();
+            var res = TestAjax.CentralizeTest(curList, "5");
+            var centerItem = res.value;
+            L.circle([centerItem.Latitude, centerItem.Longitude], centerItem.Magnitude * 1000).addTo(map);
+            //var list = res.value;
+            //bindCentralizedEarthquakes(list);
             return false;
         }
 
@@ -519,4 +567,5 @@
         //    return new L.Ellipse(latlng, radii, tilt, options);
         //};
     </script>
+
 </asp:Content>

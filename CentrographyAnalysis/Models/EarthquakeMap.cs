@@ -29,7 +29,7 @@ namespace CentrographyAnalysis.Models
             this.Property(t => t.URL)
                 .HasColumnName("URL");
 
-            this.ToTable("centro.Earthquake");
+            this.ToTable("dbo.Earthquake");
         }
     }
 }

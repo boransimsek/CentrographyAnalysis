@@ -105,9 +105,9 @@
     <div id='legend' style='display: none;'>
         <strong>Centrography Analysis on Earthquakes</strong>
         <nav class='legend clearfix'>
-            <span style='background: #BAD00B;'></span>
             <span style='background: #19D359;'></span>
             <span style='background: #006999;'></span>
+            <span style='background: #BAD00B;'></span>
             <span style='background: #D28611;'></span>
             <span style='background: #E10020;'></span>
             <label>< 3</label>
@@ -116,70 +116,8 @@
             <label>6 - 7</label>
             <label>7 < </label>
             <small>Magnitude Scale</small>
+        </nav>
     </div>
-    <%-- <div class='my-legend'>
-        <div class='legend-title'>The Title or Explanation of your Map</div>
-        <div class='legend-scale'>045A8D
-            <ul class='legend-labels'>
-                <li><span style='background: #8DD3C7;'></span>One</li>
-                <li><span style='background: #FFFFB3;'></span>Two</li>
-                <li><span style='background: #BEBADA;'></span>Three</li>
-                <li><span style='background: #FB8072;'></span>Four</li>
-                <li><span style='background: #80B1D3;'></span>etc</li>
-            </ul>
-        </div>
-        <div class='legend-source'>Source: <a href="#link to source">Name of source</a></div>
-    </div>
-
-    <style type='text/css'>
-        .my-legend {
-            max-width: 300px !important;
-        }
-
-            .my-legend .legend-title {
-                text-align: left;
-                margin-bottom: 5px;
-                font-weight: bold;
-                font-size: 90%;
-            }
-
-            .my-legend .legend-scale ul {
-                margin: 0;
-                margin-bottom: 5px;
-                padding: 0;
-                float: left;
-                list-style: none;
-            }
-
-                .my-legend .legend-scale ul li {
-                    font-size: 80%;
-                    list-style: none;
-                    margin-left: 0;
-                    line-height: 18px;
-                    margin-bottom: 2px;
-                }
-
-            .my-legend ul.legend-labels li span {
-                display: block;
-                float: left;
-                height: 16px;
-                width: 30px;
-                margin-right: 5px;
-                margin-left: 0;
-                border: 1px solid #999;
-            }
-
-            .my-legend .legend-source {
-                font-size: 70%;
-                color: #999;
-                clear: both;
-            }
-
-            .my-legend a {
-                color: #777;
-            }
-    </style>--%>
-
 
 
     <div class="row">
@@ -213,7 +151,6 @@
         function init() {
             bindDateDesign();
             $("#workType").bootstrapSwitch();
-            $("#mapType").bootstrapSwitch();
             loadMap();
             myLayer = L.mapbox.featureLayer();
         }
@@ -228,10 +165,7 @@
                 .setView([39, 35.50], 5);
             map.legendControl.addLegend(document.getElementById('legend').innerHTML);
             map.on('zoomend', function () {
-                if (map.getZoom() < 2) {
-                    map.setZoom(2);
-                }
-                if (centerGeoJson != null) {
+                if (centerLayer != null) {
                     centralizeTest();
                 }
             });
@@ -265,11 +199,10 @@
 
         function searchEarthquakes() {
             map.removeLayer(myLayer);
-            if (centerLayer != null) {
+            //if (centerGeoJson != null)
+            //    centerGeoJson = null;
+            if (centerLayer != null)
                 map.removeLayer(centerLayer);
-                centerGeoJson.features = [];
-            }
-
             if (heat != null)
                 map.removeLayer(heat);
 
@@ -287,7 +220,7 @@
                 bindEarthquakes(list);
             } else {
                 var res = CentroAjax.GetEarthquakesOffline(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
-                //var res = CentrographyAjax.GetEarthquakesOffline();
+                //var res = CentroAjax.GetEarthquakesOffline();
                 var list = res.value;
                 curList = list;
                 bindEarthquakes(list);
@@ -363,11 +296,12 @@
             res.properties = {};
             res.properties.title = item.Title;
             res.properties.magnitude = item.Magnitude;
-            res.properties.description = "Magnitude: " + item.Magnitude + "\n" + "Depth: " + item.Depth + " - " + item.AlertType + " - " + item.EventDate;
+            res.properties.description = "Mag: " + item.Magnitude + " - Depth: " + item.Depth + " - " + item.AlertType + " - " + item.EventDate;
             res.properties.depth = item.Depth;
             //res.properties['marker-size'] = 'small';
             //res.properties['marker-color'] = '#BE9A6B';
             res.properties.icon = {};
+
             //res.properties.icon.iconUrl = './Content/Images/bluedot.png';
             res.properties.icon.iconUrl = getIconByMagnitude(item.Magnitude);
             res.properties.icon.className = 'dot';
@@ -385,29 +319,29 @@
                 return './Content/Images/pin_orange.png';
             }
             else if (magnitude < 6 && magnitude >= 5) {
-                return './Content/Images/pin_blue.png';
+                return './Content/Images/pin_yellow.png';
             }
             else if (magnitude < 5 && magnitude >= 3) {
-                return './Content/Images/pin_green.png';
+                return './Content/Images/pin_blue.png';
             } else {
-                return './Content/Images/pin_yellow.png';
+                return './Content/Images/pin_green.png';
             }
         }
 
         function getIconSizeByMagnitude(magnitude) {
             if (magnitude >= 7) {
-                return 40;
+                return 30;
             }
             else if (magnitude < 7 && magnitude >= 6) {
-                return 30;
+                return 25;
             }
             else if (magnitude < 6 && magnitude >= 5) {
                 return 20;
             }
             else if (magnitude < 5 && magnitude >= 3) {
-                return 10;
+                return 15;
             } else {
-                return 8;
+                return 10;
             }
         }
 
@@ -417,15 +351,16 @@
                 map.removeLayer(centerLayer);
             centerLayer = L.geoJson(centerGeoJson, {
                 pointToLayer: function (feature, latlng) {
-                    var circle = L.circleMarker(latlng, {
-                        // Here we use the `count` property in GeoJSON verbatim: if it's
-                        // to small or two large, we can use basic math in Javascript to
-                        // adjust it so that it fits the map better.
-                        depth: feature.properties.depth,
-                        magnitude: feature.properties.magnitude,
-                        //radius: (feature.properties.magnitude * 130000.0) / zoomPixel[map.getZoom()]
-                        radius: (feature.properties.magnitude * 1000) / zoomPixel[map.getZoom()]
-                    });
+                    //var circle = L.circleMarker(latlng, {
+                    //    // Here we use the `count` property in GeoJSON verbatim: if it's
+                    //    // to small or two large, we can use basic math in Javascript to
+                    //    // adjust it so that it fits the map better.
+                    //    depth: feature.properties.depth,
+                    //    magnitude: feature.properties.magnitude,
+                    //    //radius: (feature.properties.magnitude * 130000.0) / zoomPixel[map.getZoom()]
+                    //    radius: (feature.properties.magnitude * 1000) / zoomPixel[map.getZoom()]
+                    //});
+                    var circle = L.circle([latlng.lat, latlng.lng], feature.properties.magnitude * 1000);
                     //var icon_live = L.icon({ iconUrl: './Content/marker.png', iconSize: [35, 35] });
                     //feature.properties.icon = icon_live;
                     circle.on("click", function () {
@@ -438,7 +373,8 @@
 
         function centralize() {
             var step = $("#txtStep").val();
-            var res = CentroAjax.CentralizeTest(curList, step);
+            //var res = CentroAjax.CentralizeTest(curList, step);
+            var res = CentroAjax.CentraliseRecursive(curList);
             var list = res.value;
             bindCentralizedEarthquakes(list);
             return false;

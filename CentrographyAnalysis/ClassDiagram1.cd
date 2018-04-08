@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CentrographyAnalysis.Models.Earthquake">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAgEAAAAAIAAAAACAAAAAgAAAAAAFAAQA=</HashCode>
+      <FileName>Models\Earthquake.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.EarthquakeData">
+    <Position X="5.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAEABAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\EarthquakeData.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="metadata" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="features" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.Feature">
+    <Position X="8" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAKAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Models\Feature.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="geometry" />
+      <Property Name="properties" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.Geometry">
+    <Position X="6" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAgAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Geometry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.Metadata">
+    <Position X="9" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAQAAAAAAABAAAAAAAAAAIAAAAQCAAAAAAAAA=</HashCode>
+      <FileName>Models\Metadata.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.Properties">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AARBEAAAQAACAAUAAABgABACIAAJQAAAgBAIAkIKAgA=</HashCode>
+      <FileName>Models\Properties.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CentrographyAnalysis.Models.RootObject">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAEABAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\RootObject.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="metadata" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="features" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

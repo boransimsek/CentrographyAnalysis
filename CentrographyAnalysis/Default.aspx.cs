@@ -191,10 +191,10 @@ namespace CentrographyAnalysis
                 catch (Exception exc)
                 {
                     Earthquake e = new Earthquake();
-                    e.Latitude = 35;
-                    e.Longitude = 35;
-                    e.Magnitude = 5;
-                    e.Title = exc.Message;
+                    e.Latitude = 30;
+                    e.Longitude = 30;
+                    e.Magnitude = 7;
+                    e.Title = exc.InnerException != null ? exc.InnerException.Message : exc.Message;
                     var res = new List<Earthquake>();
                     res.Add(e);
                     return res;
@@ -291,6 +291,157 @@ namespace CentrographyAnalysis
         }
 
 
+        [AjaxMethod]
+        public List<Earthquake> CentraliseRecursive(List<Earthquake> list)
+        {
+            List<Earthquake> result = new List<Earthquake>();
+
+            List<Earthquake> excludedEarthquakes = new List<Earthquake>();
+
+            int occurTime = 0;
+            while (excludedEarthquakes.Count() < list.Count * 0.6)
+            {
+                occurTime++;
+                List<Earthquake> remainingEarthquakes = list.Where(t => !excludedEarthquakes.Contains(t)).ToList();
+
+                Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime);
+                centreEarthquake.Depth = remainingEarthquakes.Count;
+
+                if (centreEarthquake.Magnitude <= (0.02 * GetMaximumDistance(list)))
+                {
+                    result.Add(centreEarthquake);
+                }
+
+
+
+                excludedEarthquakes.AddRange(remainingEarthquakes);
+            }
+
+            return result;
+        }
+
+        private double GetMaximumDistance(List<Earthquake> list)
+        {
+            decimal minLongitude = list.Min(t => t.Longitude);
+            decimal maxLongitude = list.Max(t => t.Longitude);
+
+            double distLng = GetDistancePerLongitude(0);
+            double distance = Math.Abs((double)(maxLongitude - minLongitude)) * distLng;
+            return distance;
+        }
+
+        //[AjaxMethod]
+        //public List<Earthquake> CentralizeTest(List<Earthquake> list, string stepCount)
+        //{
+
+        //    //int loopMax = (int) (list.Count * Convert.ToInt32(stepCount) / 100);
+
+
+
+        //    int step = String.IsNullOrEmpty(stepCount) ? 3 : Convert.ToInt32(stepCount);
+
+        //    int minLat = (int)list.Min(t => t.Latitude) - step - 1;
+        //    int minLng = (int)list.Min(t => t.Longitude) - step - 1;
+        //    int maxLat = (int)list.Max(t => t.Latitude) + step + 1;
+        //    int maxLng = (int)list.Max(t => t.Longitude) + step + 1;
+
+
+        //    List<Earthquake> result = new List<Earthquake>();
+        //    for (int i = minLat; i < maxLat; i += step)
+        //    {
+        //        for (int j = minLng; j < maxLng; j += step)
+        //        {
+        //            List<Earthquake> curList = list.Where(t => t.Latitude < (i + step) && t.Latitude >= (i) && t.Longitude < (j + step) && t.Longitude >= (j)).ToList();
+        //            if (curList.Count == 0)
+        //                continue;
+
+        //            Earthquake centreEarthquake = CalculateCentralEarthquake(curList, 1);
+
+        //            centreEarthquake.Depth = curList.Count;
+
+        //            //Earthquake centerEq = FindWeightedCenter(curList);
+        //            //FindStandardDeviation(curList, centerEq);
+        //            //centerEq.Depth = curList.Count;
+
+        //            //if(centerEq.Magnitude < 0.8)
+        //            //    result.Add(centerEq);
+        //            //if (curList.Count > step * 5 && IsCentralized(curList, centerEq))
+
+        //            //double safeTest = (1.0 * curList.Count) / centerEq.Magnitude;
+        //            //if (safeTest > 0.5)
+        //            //    result.Add(centerEq);
+        //            result.Add(centreEarthquake);
+
+        //        }
+        //    }
+
+        //    return result;
+        //}
+
+
+
+        private Earthquake CalculateCentralEarthquake(List<Earthquake> list, int occurTime)
+        {
+            int loopMax;
+            if (occurTime == 1)
+                loopMax = (int)(list.Count * 0.6);
+            else
+                loopMax = (int)(list.Count * 0.7);
+
+            for (int i = 0; i < loopMax; i++)
+            {
+                Earthquake avgEarthquakeCurrent = GetAverageEarthquakePoint(list);
+                Earthquake furthestEarthquake = GetFurthestEarthquake(list, avgEarthquakeCurrent);
+
+                list.Remove(furthestEarthquake);
+            }
+
+            Earthquake finalAverageEarthquake = GetAverageEarthquakePoint(list);
+            Earthquake finalFurthestEarthquake = GetFurthestEarthquake(list, finalAverageEarthquake);
+
+            double circleRadius = GetDistance(finalAverageEarthquake, finalFurthestEarthquake);
+            finalAverageEarthquake.Magnitude = circleRadius;
+            return finalAverageEarthquake;
+        }
+
+        private Earthquake GetAverageEarthquakePoint(List<Earthquake> list)
+        {
+            decimal latSum = 0;
+            decimal lngSum = 0;
+            double magnitudeSum = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                latSum += list[i].Latitude;
+                lngSum += list[i].Longitude;
+                magnitudeSum += list[i].Magnitude;
+            }
+
+            Earthquake result = new Earthquake();
+            result.Latitude = latSum / list.Count;
+            result.Longitude = lngSum / list.Count;
+            result.Magnitude = magnitudeSum / list.Count;
+
+            return result;
+        }
+
+        private Earthquake GetFurthestEarthquake(List<Earthquake> list, Earthquake avgEarthquake)
+        {
+            double distMax = 0;
+            Earthquake result = list[0];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                double dist = GetDistance(list[i], avgEarthquake);
+                if (dist > distMax)
+                {
+                    distMax = dist;
+                    result = list[i];
+                }
+            }
+
+            return result;
+        }
+
         //, decimal minLat, decimal maxLat, decimal minLng, decimal maxLng
         private Earthquake FindWeightedCenter(List<Earthquake> list)
         {
@@ -365,39 +516,22 @@ namespace CentrographyAnalysis
 
         private bool IsCentralized(List<Earthquake> list, Earthquake center)
         {
-            int insideCircleCount = 0;
-
+            int count = 0;
             foreach (var eq in list)
             {
-                double dist = GetDistance(eq, center);
-                if (dist <= center.Magnitude)
-                {
-                    insideCircleCount++;
-                }
+                double difLat = Math.Abs((double)(eq.Latitude - center.Latitude));
+                double difLng = Math.Abs((double)(eq.Longitude - center.Longitude));
+                double distLat = 111;
+                double distLng = GetDistancePerLongitude(eq.Latitude);
+                double distance = Math.Sqrt(Math.Pow(difLat * distLat, 2) + Math.Pow(difLng * distLng, 2));
+                if (distance <= center.Magnitude)
+                    count++;
             }
 
-            if ((1.0*insideCircleCount)/(1.0*list.Count) > 0.6)
-            {
+            if (count > (0.6) * list.Count)
                 return true;
-            }
-            return false;
-
-            //int count = 0;
-            //foreach (var eq in list)
-            //{
-            //    double difLat = Math.Abs((double)(eq.Latitude - center.Latitude));
-            //    double difLng = Math.Abs((double)(eq.Longitude - center.Longitude));
-            //    double distLat = 111;
-            //    double distLng = GetDistancePerLongitude(eq.Latitude);
-            //    double distance = Math.Sqrt(Math.Pow(difLat * distLat, 2) + Math.Pow(difLng * distLng, 2));
-            //    if (distance <= center.Magnitude)
-            //        count++;
-            //}
-
-            //if (count > (0.6) * list.Count)
-            //    return true;
-            //else
-            //    return false;
+            else
+                return false;
         }
 
         private double GetDistance(Earthquake eq1, Earthquake eq2)
