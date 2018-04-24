@@ -46,6 +46,7 @@
                 <asp:ScriptReference Path="~/Scripts/mapbox.js" />
                 <asp:ScriptReference Path="~/Scripts/leaflet.markercluster.js" />
                 <asp:ScriptReference Path="~/Scripts/heatmap.js" />
+                <asp:ScriptReference Path="~/Scripts/Charts/Chart.bundle.min.js"/>
 
                 <asp:ScriptReference Name="WebFormsBundle" />
                 <%--<script src="https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js"></script>

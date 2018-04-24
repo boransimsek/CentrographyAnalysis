@@ -4,13 +4,68 @@
     <asp:Label runat="server" ID="lblTest"></asp:Label>
     <button id="btnTest" onclick="return getMessage();">Test</button>
 
+        <style>
+        .legend label,
+        .legend span {
+            display: block;
+            float: left;
+            height: 15px;
+            width: 20%;
+            text-align: center;
+            font-size: 9px;
+            color: #808080;
+        }
+
+        /*#menu {
+            background: #fff;
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            right: 10px;
+            border-radius: 3px;
+            width: 120px;
+            border: 1px solid rgba(0,0,0,0.4);
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        #menu a {
+            font-size: 13px;
+            color: #404040;
+            display: block;
+            margin: 0;
+            padding: 0;
+            padding: 10px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+            text-align: center;
+        }
+
+        #menu a:last-child {
+            border: none;
+        }
+
+        #menu a:hover {
+            background-color: #f8f8f8;
+            color: #404040;
+        }
+
+        #menu a.active {
+            background-color: #3887be;
+            color: #ffffff;
+        }
+
+        #menu a.active:hover {
+            background: #3074a4;
+        }*/
+    </style>
+
     <%--<h2>Parameters</h2>--%>
-    <div class="well" style="margin-top: 4%;">
+<%--    <div class="well" style="margin-top: 4%;">
 
         <div class="container">
             <div class="col-md-4">
                 <div class="form-group">
-                    <%--<label class="col-sm-2 control-label" for="dtpStartDate">Start Time</label>--%>
+                    
                     <div class="input-group date" id="dtpStartDate">
                         <input type="text" class="form-control" placeholder="Start Time" id="txtStartDate" />
                         <span class="input-group-addon">
@@ -22,7 +77,7 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    <%--<label class="col-sm-2 control-label" for="dtpEndDate">End Time</label>--%>
+                    
                     <div class="input-group date" id="dtpEndDate">
                         <input type="text" class="form-control" placeholder="End Time" id="txtEndDate" />
                         <span class="input-group-addon">
@@ -58,13 +113,6 @@
 
                 <label for="workType">Work Type:</label>
                 <input type="checkbox" id="workType" checked="checked" data-off-text="Offline" data-on-text="Online" />
-
-
-
-                <%--<select name="slider" id="workType" data-role="slider">
-                    <option value="off">Offline</option>
-                    <option value="on">Online</option>
-                </select>--%>
             </div>
             <div class="col-md-2">
                 <input type="text" class="form-control" id="txtStep" placeholder="Step (Degrees)" />
@@ -86,19 +134,109 @@
             </div>
 
         </div>
+    </div>--%>
+    <div class="row">
+        <div class="container">
+            <div class="col-lg-2" style="height: 800px; margin-top: 4%;">
+                <div class="well" style="height: 100%">
+ 
+                        <div class="panel panel-success">
+                            <div class="panel-heading">Date Range</div>
+                            <div class="panel-body">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <%--<label class="col-sm-2 control-label" for="dtpStartDate">Start Time</label>--%>
+                                        <div class="input-group date" id="dtpStartDate">
+                                            <input type="text" class="form-control" placeholder="Start Time" id="txtStartDate" />
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>                            
+                                </div>
+                    
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <%--<label class="col-sm-2 control-label" for="dtpEndDate">End Time</label>--%>
+                                        <div class="input-group date" id="dtpEndDate">
+                                            <input type="text" class="form-control" placeholder="End Time" id="txtEndDate" />
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>         
+                                </div>     
+                            </div>
+                        </div>
+                      
+                    
+
+                        <div class="panel panel-success">
+                            <div class="panel-heading">Location Range</div>
+                            <div class="panel-body">                    
+                                <div class="col-md-12">
+                                    <input type="text" class="form-control" placeholder="Min. Latitude" id="txtMinLatitude" />
+                                </div>
+                                
+                                <div class="col-md-12" style="margin-top: 5%">
+                                    <input type="text" class="form-control" placeholder="Max. Latitude" id="txtMaxLatitude" />
+                                </div>
+                    
+                                <div class="col-md-12" style="margin-top: 5%">
+                                    <input type="text" class="form-control" placeholder="Min. Longitude" id="txtMinLongitude" />
+                                </div>
+                                
+                                <div class="col-md-12" style="margin-top: 5%">
+                                    <input type="text" class="form-control" placeholder="Max. Longitude" id="txtMaxLongitude" />
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-12" style="margin-top: 10px">
+                            <input type="text" class="form-control" placeholder="Min. Magnitude" id="txtMagnitude" />
+                        </div>
+                    
+                        <div class="col-md-12" style="margin-top: 10px">
+
+                            <label for="workType">Data Type:</label>
+                            <input type="checkbox" id="workType" checked="checked" data-off-text="Sample" data-on-text="Real" />
+
+
+
+                            <%--<select name="slider" id="workType" data-role="slider">
+                                <option value="off">Offline</option>
+                                <option value="on">Online</option>
+                            </select>--%>
+                        </div>
+<%--                        <div class="col-md-2">
+                            <input type="text" class="form-control" id="txtStep" placeholder="Step (Degrees)" />
+                        </div>
+                        <div class="col-md-1"></div>--%>
+                    
+                    
+                        <div class="col-md-12" style="margin-top: 10px">
+                            <label for="mapType">Heat Map:</label>
+                            <input type="checkbox" id="mapType" data-off-text="Off" data-on-text="On" />
+                        </div>
+                    
+                    
+                        <div class="col-md-12" style="margin-top: 15px">
+                            <button type="button" class="btn btn-block btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
+                        </div>
+                        <%--<div class="col-md-1" style="width: 6%; margin-top: 10px"></div>--%>
+                        <div class="col-md-12" style="margin-top: 15px">
+                            <button type="button" class="btn btn-block btn-success" id="btnCentralize" onclick="return centralize();">Centralise</button>
+                        </div>
+                    
+                </div>
+
+            </div>
+            <div class="col-lg-10" style="height: 800px; margin-top: 4%; padding-left: 1%">
+                <div id="map" style="height: 800px;">
+                </div>
+            </div>
+        </div>
     </div>
-    <style>
-        .legend label,
-        .legend span {
-            display: block;
-            float: left;
-            height: 15px;
-            width: 20%;
-            text-align: center;
-            font-size: 9px;
-            color: #808080;
-        }
-    </style>
 
     <!-- Set the display of this container to none so we can
      add it programmatically to `legendControl` -->
@@ -118,9 +256,14 @@
             <small>Magnitude Scale</small>
         </nav>
     </div>
+    
+    <div class="row" id="chartRow">
+        
+    </div>
 
+    
 
-    <div class="row">
+<%--    <div class="row">
 
 
         <div class="col-lg-12">
@@ -128,7 +271,7 @@
             </div>
         </div>
 
-    </div>
+    </div>--%>
 
 
 
@@ -143,6 +286,8 @@
         var centerLayer;
         var zoomPixel = [156412.0, 78206.0, 39103.0, 19551.0, 9776.0, 4888.0, 2444.0, 1222.0, 610.984, 305.492, 152.746, 76.373, 38.187, 19.093, 9.547, 4.773, 2.387, 1.193, 0.596, 0.298];
         var heat;
+        var toggleableLayerIds = ['contours', 'museums'];
+        var centralPoints = [];
 
         $(document).ready(function () {
             init();
@@ -151,9 +296,52 @@
         function init() {
             bindDateDesign();
             $("#workType").bootstrapSwitch();
+            $("#mapType").bootstrapSwitch();
             loadMap();
             myLayer = L.mapbox.featureLayer();
+            //addLayerToggles();
+
+            //initChart();
         }
+
+        function initChart(chartId, dataList, labelList) {
+            //var res = CentroAjax.GetEarthquakeHistogram();
+            //var list = res.value;
+            var ctx = document.getElementById(chartId).getContext('2d');
+            //document.getElementById(chartId).className = "col-lg-3";
+            //document.getElementById(chartId).style.height = "400px";
+            
+
+            myChart = new Chart(ctx,
+            {
+                type: 'bar',
+                data: {
+                    labels: labelList,
+                    datasets: [
+                        {
+                            label: "# of Earthquakes",
+                            data: dataList,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255,99,132,1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        yAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+        }
+
+
 
         function loadMap() {
             //L.mapbox.accessToken = 'pk.eyJ1Ijoic2ltc2VrYm8iLCJhIjoiY2lpMDN2ODUyMDRuYXQzbTF4Z3FqNnR3diJ9.lNEjQ2Yb3mrtvOFFwz5B_Q';
@@ -174,6 +362,36 @@
             //    //addMarkerOnClick(ev);
             //});
             //loadFullPlacesList();
+        }
+
+        function addLayerToggles() {
+            for (var i = 0; i < toggleableLayerIds.length; i++) {
+                var id = toggleableLayerIds[i];
+
+                var link = document.createElement('a');
+                link.href = '#';
+                link.className = 'active';
+                link.textContent = id;
+
+                link.onclick = function (e) {
+                    var clickedLayer = this.textContent;
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+                    if (visibility === 'visible') {
+                        map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                        this.className = '';
+                    } else {
+                        this.className = 'active';
+                        map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                    }
+                };
+
+                var layers = document.getElementById('menu');
+                layers.appendChild(link);
+            }
         }
 
         function getMessage() {
@@ -377,170 +595,59 @@
             var res = CentroAjax.CentraliseRecursive(curList);
             var list = res.value;
             bindCentralizedEarthquakes(list);
+            bindHistograms(list);
             return false;
         }
 
-        //function drawEllipse() {
-        //    Options ellipseOptions = new Options();
-        //    ellipseOptions.setProperty("color", "blue");
-        //    Ellipse ellipse = new Ellipse(latlng, 500, 100, 0, ellipseOptions);
-        //    ellipse.addTo(map);
-        //}
+        function bindHistograms(list) {
+            var count = 1;
+            list.forEach(function (item) {
+                var parentId = 'parent' + count;
+                var chartId = 'chart' + count;
+                
 
-        //L.Ellipse = L.Path.extend({
-        //    initialize: function (latlng, radii, tilt, options) {
-        //        L.Path.prototype.initialize.call(this, options);
+                jQuery('<div/>', {
+                    id: parentId,
+                }).appendTo('#chartRow');
 
-        //        this._latlng = L.latLng(latlng);
+                document.getElementById(parentId).className = "col-lg-3";
+                //document.getElementById(parentId).style.height = "400px";
 
-        //        if (tilt) {
-        //            this._tiltDeg = tilt;
-        //        } else {
-        //            this._tiltDeg = 0;
-        //        }
+                jQuery('<canvas/>', {
+                    id: chartId,
+                }).appendTo('#' + parentId);
 
-        //        if (radii) {
-        //            this._mRadiusX = radii[0];
-        //            this._mRadiusY = radii[1];
-        //        }
-        //    },
+                
+                //var chart = document.getElementById('chartId').getContext('2d');
+                var res = CentroAjax.GetHistogram(item, curList);
+                var histData = res.value;
+                initChart(chartId, histData.HistogramData, histData.Labels);
+                count++;
+            });
+        }
 
-        //    options: {
-        //        fill: true,
-        //        startAngle: 0,
-        //        endAngle: 359.9
-        //    },
+        function drawScatterChart(chartId, dataList) {
+            var ctx = document.getElementById(chartId).getContext('2d');
 
-        //    setLatLng: function (latlng) {
-        //        this._latlng = L.latLng(latlng);
-        //        return this.redraw();
-        //    },
-
-        //    setRadius: function (radii) {
-        //        this._mRadiusX = radii[0];
-        //        this._mRadiusY = radii[1];
-        //        return this.redraw();
-        //    },
-
-        //    setTilt: function (tilt) {
-        //        this._tiltDeg = tilt;
-        //        return this.redraw();
-        //    },
-
-        //    projectLatlngs: function () {
-        //        var lngRadius = this._getLngRadius(),
-        //            latRadius = this._getLatRadius(),
-        //            latlng = this._latlng,
-        //            pointLeft = this._map.latLngToLayerPoint([latlng.lat, latlng.lng - lngRadius]),
-        //            pointBelow = this._map.latLngToLayerPoint([latlng.lat - latRadius, latlng.lng]);
-
-        //        this._point = this._map.latLngToLayerPoint(latlng);
-        //        this._radiusX = Math.max(this._point.x - pointLeft.x, 1);
-        //        this._radiusY = Math.max(pointBelow.y - this._point.y, 1);
-        //        this._endPointParams = this._centerPointToEndPoint();
-        //    },
-
-        //    getBounds: function () {
-        //        var lngRadius = this._getLngRadius(),
-        //            latRadius = this._getLatRadius(),
-        //            latlng = this._latlng;
-
-        //        return new L.LatLngBounds(
-        //                [latlng.lat - latRadius, latlng.lng - lngRadius],
-        //                [latlng.lat + latRadius, latlng.lng + lngRadius]);
-        //    },
-
-        //    getLatLng: function () {
-        //        return this._latlng;
-        //    },
-
-        //    getPathString: function () {
-        //        var c = this._point,
-        //            rx = this._radiusX,
-        //            ry = this._radiusY,
-        //            phi = this._tiltDeg,
-        //            endPoint = this._endPointParams;
-
-        //        if (this._checkIfEmpty()) {
-        //            return '';
-        //        }
-
-        //        if (L.Browser.svg) {
-        //            return 'M' + endPoint.x0 + ',' + endPoint.y0 +
-        //                   'A' + rx + ',' + ry + ',' + phi + ',' +
-        //                   endPoint.largeArc + ',' + endPoint.sweep + ',' +
-        //                   endPoint.x1 + ',' + endPoint.y1 + ' z';
-        //        } else {
-        //            c._round();
-        //            rx = Math.round(rx);
-        //            ry = Math.round(ry);
-        //            return 'AL ' + c.x + ',' + c.y + ' ' + rx + ',' + ry +
-        //                   ' ' + phi + ',' + (65535 * 360);
-        //        }
-        //    },
-
-        //    getRadius: function () {
-        //        return new L.point(this._mRadiusX, this._mRadiusY);
-        //    },
-
-        //    // TODO Earth hardcoded, move into projection code!
-
-        //    _centerPointToEndPoint: function () {
-        //        // Convert between center point parameterization of an ellipse
-        //        // too SVG's end-point and sweep parameters.  This is an
-        //        // adaptation of the perl code found here:
-        //        // http://commons.oreilly.com/wiki/index.php/SVG_Essentials/Paths
-        //        var c = this._point,
-        //            rx = this._radiusX,
-        //            ry = this._radiusY,
-        //            theta2 = (this.options.startAngle + this.options.endAngle) *
-        //                     L.LatLng.DEG_TO_RAD,
-        //            theta1 = this.options.startAngle * L.LatLng.DEG_TO_RAD,
-        //            delta = this.options.endAngle,
-        //            phi = this._tiltDeg * L.LatLng.DEG_TO_RAD;
-
-        //        // Determine start and end-point coordinates
-        //        var x0 = c.x + Math.cos(phi) * rx * Math.cos(theta1) +
-        //            Math.sin(-phi) * ry * Math.sin(theta1);
-        //        var y0 = c.y + Math.sin(phi) * rx * Math.cos(theta1) +
-        //            Math.cos(phi) * ry * Math.sin(theta1);
-
-        //        var x1 = c.x + Math.cos(phi) * rx * Math.cos(theta2) +
-        //            Math.sin(-phi) * ry * Math.sin(theta2);
-        //        var y1 = c.y + Math.sin(phi) * rx * Math.cos(theta2) +
-        //            Math.cos(phi) * ry * Math.sin(theta2);
-
-        //        var largeArc = (delta > 180) ? 1 : 0;
-        //        var sweep = (delta > 0) ? 1 : 0;
-
-        //        return {'x0': x0, 'y0': y0, 'tilt': phi, 'largeArc': largeArc,
-        //            'sweep': sweep, 'x1': x1, 'y1': y1};
-        //    },
-
-        //    _getLatRadius: function () {
-        //        return (this._mRadiusY / 40075017) * 360;
-        //    },
-
-        //    _getLngRadius: function () {
-        //        return ((this._mRadiusX / 40075017) * 360) / Math.cos(L.LatLng.DEG_TO_RAD * this._latlng.lat);
-        //    },
-
-        //    _checkIfEmpty: function () {
-        //        if (!this._map) {
-        //            return false;
-        //        }
-        //        var vp = this._map._pathViewport,
-        //            r = this._radiusX,
-        //            p = this._point;
-
-        //        return p.x - r > vp.max.x || p.y - r > vp.max.y ||
-        //               p.x + r < vp.min.x || p.y + r < vp.min.y;
-        //    }
-        //});
-
-        //L.ellipse = function (latlng, radii, tilt, options) {
-        //    return new L.Ellipse(latlng, radii, tilt, options);
-        //};
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Scatter Dataset',
+                        data: dataList,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'linear',
+                            position: 'bottom'
+                        }]
+                    }
+                }
+            });
+        }
     </script>
 
 </asp:Content>

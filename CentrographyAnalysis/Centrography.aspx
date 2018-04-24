@@ -73,6 +73,13 @@
                 <button type="button" class="btn btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
             </div>
         </div>
+        <div class="container" style="margin-top: 15px;">
+            <div class="col-md-3">
+                <label for="mapType">Map Type:</label>
+                <input type="checkbox" id="mapType" data-off-text="Normal" data-on-text="Heat" />
+            </div>
+
+        </div>
     </div>
     <style>
         .legend label,

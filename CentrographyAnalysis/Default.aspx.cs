@@ -10,6 +10,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using AjaxPro;
 using CentrographyAnalysis.Models;
+using CentrographyAnalysis.Models.HistogramModels;
 
 namespace CentrographyAnalysis
 {
@@ -306,6 +307,7 @@ namespace CentrographyAnalysis
 
                 Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime);
                 centreEarthquake.Depth = remainingEarthquakes.Count;
+                centreEarthquake.EventDate = DateTime.Today;
 
                 if (centreEarthquake.Magnitude <= (0.02 * GetMaximumDistance(list)))
                 {
@@ -543,5 +545,82 @@ namespace CentrographyAnalysis
             double distance = Math.Sqrt(Math.Pow(difLat * distLat, 2) + Math.Pow(difLng * distLng, 2));
             return distance;
         }
+
+        [AjaxMethod]
+        public List<int> GetEarthquakeHistogram()
+        {
+            List<int> result = new List<int>();
+            result.Add(24);
+            result.Add(12);
+            result.Add(15);
+            result.Add(7);
+            result.Add(3);
+
+            return result;
+        }
+
+        [AjaxMethod]
+        public EarthquakeHistogram GetHistogram(Earthquake centralPoint, List<Earthquake> eqList)
+        {
+            EarthquakeHistogram result = new EarthquakeHistogram();
+            double histRange = GetMaximumDistance(eqList);
+            double histStep = histRange / 10;
+            result.Labels.Add("0");
+
+            for (int i = 0; i < 10; i++)
+            {
+                double distanceRangeMin = (histStep * i);
+                double distanceRangeMax = (histStep * (i + 1));
+                int amount = eqList.Count(t => GetDistance(t, centralPoint) >= distanceRangeMin && GetDistance(t, centralPoint) < distanceRangeMax);
+                result.HistogramData.Add(amount);
+                result.Labels.Add(((int)distanceRangeMax).ToString());
+            }
+
+            return result;
+        }
+
+        [AjaxMethod]
+        public List<ScatterModel> GetScatterData(/*Earthquake centralPoint, List<Earthquake> eqList*/)
+        {
+            List<ScatterModel> result = new List<ScatterModel>();
+            result.Add(new ScatterModel()
+            {
+                x = 5.84,
+                y = 14.25
+            });
+
+            result.Add(new ScatterModel()
+            {
+                x = 24.84,
+                y = -9.25
+            });
+
+            result.Add(new ScatterModel()
+            {
+                x = 45.84,
+                y = -30.25
+            });
+
+            result.Add(new ScatterModel()
+            {
+                x = -25.84,
+                y = 44.25
+            });
+
+            result.Add(new ScatterModel()
+            {
+                x = 4.84,
+                y = -4.25
+            });
+
+            result.Add(new ScatterModel()
+            {
+                x = -32.84,
+                y = 22.25
+            });
+
+            return result;
+        }
+
     }
 }

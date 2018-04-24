@@ -217,6 +217,7 @@
     <Content Include="Content\bootstrap\alerts.less" />
     <Content Include="Content\_bootstrap-datetimepicker.less" />
     <Content Include="Content\bootstrap-datetimepicker-build.less" />
+    <Content Include="DesignTestPage.aspx" />
     <Content Include="ExternalLib\AjaxPro.2.dll" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -233,6 +234,10 @@
     <Content Include="Scripts\bootstrap-switch.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\Charts\Chart.bundle.js" />
+    <Content Include="Scripts\Charts\Chart.bundle.min.js" />
+    <Content Include="Scripts\Charts\Chart.js" />
+    <Content Include="Scripts\Charts\Chart.min.js" />
     <Content Include="Scripts\heatmap.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -322,15 +327,25 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DesignTestPage.aspx.cs">
+      <DependentUpon>DesignTestPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DesignTestPage.aspx.designer.cs">
+      <DependentUpon>DesignTestPage.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\MatrixHelper.cs" />
     <Compile Include="Models\Earthquake.cs" />
     <Compile Include="Models\EarthquakeData.cs" />
+    <Compile Include="Models\EarthquakeHistogram.cs" />
     <Compile Include="Models\EarthquakeMap.cs" />
     <Compile Include="Models\EQViewModel.cs" />
     <Compile Include="Models\Feature.cs" />
     <Compile Include="Models\Geometry.cs" />
+    <Compile Include="Models\HistogramModels\ScatterModel.cs" />
     <Compile Include="Models\Metadata.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\RootObject.cs" />
