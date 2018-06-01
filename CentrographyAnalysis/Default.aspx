@@ -218,7 +218,10 @@
                             <label for="mapType">Heat Map:</label>
                             <input type="checkbox" id="mapType" data-off-text="Off" data-on-text="On" />
                         </div>
-                    
+                         <div class="col-md-12" style="margin-top: 10px">
+                            <label for="curveFit">Curve Fitting:</label>
+                            <input type="checkbox" id="curveFit" data-off-text="Off" data-on-text="On" />
+                        </div>                   
                     
                         <div class="col-md-12" style="margin-top: 15px">
                             <button type="button" class="btn btn-block btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
@@ -288,6 +291,7 @@
         var heat;
         var toggleableLayerIds = ['contours', 'museums'];
         var centralPoints = [];
+        var polylines = [];
 
         $(document).ready(function () {
             init();
@@ -297,6 +301,14 @@
             bindDateDesign();
             $("#workType").bootstrapSwitch();
             $("#mapType").bootstrapSwitch();
+            $("#curveFit").bootstrapSwitch();
+            $("#curveFit").on('switchChange.bootstrapSwitch', function (event, state) {
+                if (state) {
+                    showPolyLines();
+                } else {
+                    hidePolyLines();
+                }
+            });
             loadMap();
             myLayer = L.mapbox.featureLayer();
             //addLayerToggles();
@@ -314,25 +326,39 @@
 
             myChart = new Chart(ctx,
             {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: labelList,
                     datasets: [
                         {
-                            label: "# of Earthquakes",
+                            label: "Distance Distribution",
                             data: dataList,
                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                             borderColor: 'rgba(255,99,132,1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            fill: false
                         }
                     ]
                 },
                 options: {
                     scales: {
+                        xAxes: [{
+                            position: 'bottom',
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Distance (km)'
+                            }
+                        }],
                         yAxes: [
                             {
                                 ticks: {
                                     beginAtZero: true
+                                },
+                                display: true,
+                                scaleLabel: {
+                                    labelString: '# of Earthquakes',
+                                    display: true
                                 }
                             }
                         ]
@@ -340,8 +366,6 @@
                 }
             });
         }
-
-
 
         function loadMap() {
             //L.mapbox.accessToken = 'pk.eyJ1Ijoic2ltc2VrYm8iLCJhIjoiY2lpMDN2ODUyMDRuYXQzbTF4Z3FqNnR3diJ9.lNEjQ2Yb3mrtvOFFwz5B_Q';
@@ -416,6 +440,9 @@
         }
 
         function searchEarthquakes() {
+            clearPolylines();
+            clearCentrography();
+            setParametersToDefault();
             map.removeLayer(myLayer);
             //if (centerGeoJson != null)
             //    centerGeoJson = null;
@@ -590,12 +617,18 @@
         }
 
         function centralize() {
+            clearPolylines();
+            setParametersToDefault();
+            
             var step = $("#txtStep").val();
             //var res = CentroAjax.CentralizeTest(curList, step);
             var res = CentroAjax.CentraliseRecursive(curList);
             var list = res.value;
             bindCentralizedEarthquakes(list);
             bindHistograms(list);
+            bindScatterChart(list);
+            drawFitCurve(curList, 1);
+            drawFitCurve(curList, 2);
             return false;
         }
 
@@ -610,7 +643,7 @@
                     id: parentId,
                 }).appendTo('#chartRow');
 
-                document.getElementById(parentId).className = "col-lg-3";
+                document.getElementById(parentId).className = "col-lg-5";
                 //document.getElementById(parentId).style.height = "400px";
 
                 jQuery('<canvas/>', {
@@ -626,27 +659,199 @@
             });
         }
 
+        function bindScatterChart(list) {
+            var count = 1;
+
+            list.forEach(function(item) {
+                var parentId = 'parentSc' + count;
+                var chartId = 'chartSc' + count;
+
+
+                jQuery('<div/>', {
+                    id: parentId,
+                }).appendTo('#chartRow');
+
+                document.getElementById(parentId).className = "col-lg-9";
+                //document.getElementById(parentId).style.height = "400px";
+
+                jQuery('<canvas/>', {
+                    id: chartId,
+                }).appendTo('#' + parentId);
+
+
+                //var chart = document.getElementById('chartId').getContext('2d');
+                //var res = CentroAjax.GetScatterData(item, curList);
+                var res = CentroAjax.GetBubbleData(item, curList);
+                var histData = res.value;
+                drawScatterChart(chartId, histData);
+                count++;
+            });
+        }
+
+        
+
         function drawScatterChart(chartId, dataList) {
             var ctx = document.getElementById(chartId).getContext('2d');
 
             scatterChart = new Chart(ctx, {
-                type: 'scatter',
+                type: 'bubble',
                 data: {
                     datasets: [{
-                        label: 'Scatter Dataset',
+                        label: 'Earthquake Scatter Chart',
                         data: dataList,
-                        backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                        backgroundColor: 'rgba(255, 99, 132, 0.3)'
                     }]
                 },
                 options: {
                     scales: {
                         xAxes: [{
                             type: 'linear',
-                            position: 'bottom'
+                            position: 'bottom',
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Latitude'
+                            }
+                        }],
+                        yAxes: [
+                        {
+                            display: true,
+                            scaleLabel: {
+                                labelString: 'Longitude',
+                                display: true
+                            }
                         }]
                     }
                 }
             });
+        }
+
+        //scales: {
+        //        xAxes: [{
+        //            display: true,
+        //            scaleLabel: {
+        //                display: true,
+        //                labelString: 'Month'
+        //            }
+        //        }],
+        //        yAxes: [{
+        //            display: true,
+        //            scaleLabel: {
+        //                display: true,
+        //                labelString: 'Value'
+        //            }
+        //        }]
+        //}
+
+        function drawFitCurve(list, order) {
+            var res = CentroAjax.GetCurveData(list, order);
+            var curveList = res.value;
+            var curveLatLng = [];
+
+            curveList.forEach(function (item) {
+                var latLng = new L.LatLng(item.Latitude, item.Longitude);
+                curveLatLng.push(latLng);
+            });
+
+            //var pointA = new L.LatLng(20.635308, 70.22496);
+            //var pointB = new L.LatLng(30.984461, 80.70641);
+            //var pointList = [pointA, pointB];
+
+            var polyline = new L.Polyline(curveLatLng, {
+                color: 'blue',
+                weight: 3,
+                opacity: 0.5,
+                smoothFactor: 1
+            });
+
+            polylines.push(polyline);
+            //var polyline = L.polyline(curveList, { color: 'blue' }).addTo(map);
+
+
+            //var routeLayer = L.mapbox.featureLayer();
+            //routeJSON = {
+            //    type: 'FeatureCollection',
+            //    features: []
+            //};
+
+
+            //routeLayer.setGeoJSON(routeJSON);
+            //map.addLayer({
+            //    "id": "route",
+            //    "type": "line",
+            //    "source": {
+            //        "type": "geojson",
+            //        "data": {
+            //            "type": "Feature",
+            //            "properties": {},
+            //            "geometry": {
+            //                "type": "LineString",
+            //                "coordinates": [
+            //                    [-122.48369693756104, 37.83381888486939],
+            //                    [-122.48348236083984, 37.83317489144141],
+            //                    [-122.48339653015138, 37.83270036637107],
+            //                    [-122.48356819152832, 37.832056363179625],
+            //                    [-122.48404026031496, 37.83114119107971],
+            //                    [-122.48404026031496, 37.83049717427869],
+            //                    [-122.48348236083984, 37.829920943955045],
+            //                    [-122.48356819152832, 37.82954808664175],
+            //                    [-122.48507022857666, 37.82944639795659],
+            //                    [-122.48610019683838, 37.82880236636284],
+            //                    [-122.48695850372314, 37.82931081282506],
+            //                    [-122.48700141906738, 37.83080223556934],
+            //                    [-122.48751640319824, 37.83168351665737],
+            //                    [-122.48803138732912, 37.832158048267786],
+            //                    [-122.48888969421387, 37.83297152392784],
+            //                    [-122.48987674713133, 37.83263257682617],
+            //                    [-122.49043464660643, 37.832937629287755],
+            //                    [-122.49125003814696, 37.832429207817725],
+            //                    [-122.49163627624512, 37.832564787218985],
+            //                    [-122.49223709106445, 37.83337825839438],
+            //                    [-122.49378204345702, 37.83368330777276]
+            //                ]
+            //            }
+            //        }
+            //    },
+            //    "layout": {
+            //        "line-join": "round",
+            //        "line-cap": "round"
+            //    },
+            //    "paint": {
+            //        "line-color": "#888",
+            //        "line-width": 8
+            //    }
+            //});
+        }
+
+        function showPolyLines() {
+            polylines.forEach(function(polyline) {
+                polyline.addTo(map);
+            });
+        }
+
+        function hidePolyLines() {
+            polylines.forEach(function (item) {
+                map.removeLayer(item);
+            });
+        }
+
+
+        function clearPolylines() {
+            polylines.forEach(function(item) {
+                map.removeLayer(item);
+            });
+
+            polylines = [];
+        }
+
+        function clearCentrography() {
+            if (centerLayer != null)
+                map.removeLayer(centerLayer);
+            centerLayer = null;
+        }
+
+        function setParametersToDefault() {
+            $('#curveFit').bootstrapSwitch('state', false, true);
         }
     </script>
 

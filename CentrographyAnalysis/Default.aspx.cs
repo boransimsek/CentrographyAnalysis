@@ -11,6 +11,8 @@ using System.Web.UI.WebControls;
 using AjaxPro;
 using CentrographyAnalysis.Models;
 using CentrographyAnalysis.Models.HistogramModels;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearRegression;
 
 namespace CentrographyAnalysis
 {
@@ -85,7 +87,7 @@ namespace CentrographyAnalysis
             var syncClient = new WebClient();
             var content = syncClient.DownloadString(baseURL + parameters);
             EarthquakeData data;
-
+            content = content.Replace("\"mag\":null", "\"mag\":0.01");
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(EarthquakeData));
             using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
             {
@@ -298,14 +300,15 @@ namespace CentrographyAnalysis
             List<Earthquake> result = new List<Earthquake>();
 
             List<Earthquake> excludedEarthquakes = new List<Earthquake>();
+            bool isWeighted = true;
 
             int occurTime = 0;
-            while (excludedEarthquakes.Count() < list.Count * 0.6)
+            while (excludedEarthquakes.Count() < list.Count * 0.7)
             {
                 occurTime++;
                 List<Earthquake> remainingEarthquakes = list.Where(t => !excludedEarthquakes.Contains(t)).ToList();
 
-                Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime);
+                Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime, isWeighted);
                 centreEarthquake.Depth = remainingEarthquakes.Count;
                 centreEarthquake.EventDate = DateTime.Today;
 
@@ -313,8 +316,7 @@ namespace CentrographyAnalysis
                 {
                     result.Add(centreEarthquake);
                 }
-
-
+                
 
                 excludedEarthquakes.AddRange(remainingEarthquakes);
             }
@@ -382,7 +384,7 @@ namespace CentrographyAnalysis
 
 
 
-        private Earthquake CalculateCentralEarthquake(List<Earthquake> list, int occurTime)
+        private Earthquake CalculateCentralEarthquake(List<Earthquake> list, int occurTime, bool isWeighted)
         {
             int loopMax;
             if (occurTime == 1)
@@ -390,15 +392,26 @@ namespace CentrographyAnalysis
             else
                 loopMax = (int)(list.Count * 0.7);
 
+            double distanceRange = GetMaximumDistance(list);
+
             for (int i = 0; i < loopMax; i++)
             {
-                Earthquake avgEarthquakeCurrent = GetAverageEarthquakePoint(list);
+                Earthquake avgEarthquakeCurrent;
+                if(isWeighted)
+                    avgEarthquakeCurrent = GetWeightedAverageEarthquakePoint(list);
+                else
+                    avgEarthquakeCurrent = GetAverageEarthquakePoint(list);
+
                 Earthquake furthestEarthquake = GetFurthestEarthquake(list, avgEarthquakeCurrent);
+
+                double distanceFurthest = GetDistance(furthestEarthquake, avgEarthquakeCurrent);
+                if (distanceFurthest <= (0.02 * distanceRange))
+                    break;
 
                 list.Remove(furthestEarthquake);
             }
 
-            Earthquake finalAverageEarthquake = GetAverageEarthquakePoint(list);
+            Earthquake finalAverageEarthquake = isWeighted ? GetWeightedAverageEarthquakePoint(list) : GetAverageEarthquakePoint(list);
             Earthquake finalFurthestEarthquake = GetFurthestEarthquake(list, finalAverageEarthquake);
 
             double circleRadius = GetDistance(finalAverageEarthquake, finalFurthestEarthquake);
@@ -421,6 +434,26 @@ namespace CentrographyAnalysis
             Earthquake result = new Earthquake();
             result.Latitude = latSum / list.Count;
             result.Longitude = lngSum / list.Count;
+            result.Magnitude = magnitudeSum / list.Count;
+
+            return result;
+        }
+
+        private Earthquake GetWeightedAverageEarthquakePoint(List<Earthquake> list)
+        {
+            decimal latSum = 0;
+            decimal lngSum = 0;
+            double magnitudeSum = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                latSum += list[i].Latitude * (decimal)list[i].Magnitude;
+                lngSum += list[i].Longitude * (decimal)list[i].Magnitude;
+                magnitudeSum += list[i].Magnitude;
+            }
+
+            Earthquake result = new Earthquake();
+            result.Latitude = latSum / (decimal)magnitudeSum;
+            result.Longitude = lngSum / (decimal)magnitudeSum;
             result.Magnitude = magnitudeSum / list.Count;
 
             return result;
@@ -565,7 +598,7 @@ namespace CentrographyAnalysis
             EarthquakeHistogram result = new EarthquakeHistogram();
             double histRange = GetMaximumDistance(eqList);
             double histStep = histRange / 10;
-            result.Labels.Add("0");
+            //result.Labels.Add("0");
 
             for (int i = 0; i < 10; i++)
             {
@@ -573,54 +606,140 @@ namespace CentrographyAnalysis
                 double distanceRangeMax = (histStep * (i + 1));
                 int amount = eqList.Count(t => GetDistance(t, centralPoint) >= distanceRangeMin && GetDistance(t, centralPoint) < distanceRangeMax);
                 result.HistogramData.Add(amount);
-                result.Labels.Add(((int)distanceRangeMax).ToString());
+                result.Labels.Add(((int)distanceRangeMin).ToString() + " - " + ((int)distanceRangeMax).ToString());
             }
 
             return result;
         }
 
         [AjaxMethod]
-        public List<ScatterModel> GetScatterData(/*Earthquake centralPoint, List<Earthquake> eqList*/)
+        public List<ScatterModel> GetScatterData(Earthquake centralPoint, List<Earthquake> eqList)
         {
             List<ScatterModel> result = new List<ScatterModel>();
-            result.Add(new ScatterModel()
+            foreach (Earthquake eq in eqList)
             {
-                x = 5.84,
-                y = 14.25
-            });
+                ScatterModel scatter = new ScatterModel();
+                scatter.x = (double)(eq.Latitude - centralPoint.Latitude);
+                if (scatter.x > 90)
+                    scatter.x -= 90;
+                else if (scatter.x < -90)
+                    scatter.x += 90;
 
-            result.Add(new ScatterModel()
-            {
-                x = 24.84,
-                y = -9.25
-            });
+                scatter.y = (double) (eq.Longitude - centralPoint.Longitude);
 
-            result.Add(new ScatterModel()
-            {
-                x = 45.84,
-                y = -30.25
-            });
+                if (scatter.y > 180)
+                {
+                    scatter.y -= 180;
+                }
+                else if (scatter.y < -180)
+                {
+                    scatter.y += 180;
+                }
 
-            result.Add(new ScatterModel()
-            {
-                x = -25.84,
-                y = 44.25
-            });
-
-            result.Add(new ScatterModel()
-            {
-                x = 4.84,
-                y = -4.25
-            });
-
-            result.Add(new ScatterModel()
-            {
-                x = -32.84,
-                y = 22.25
-            });
+                result.Add(scatter);
+            }
 
             return result;
         }
+
+        [AjaxMethod]
+        public List<BubbleModel> GetBubbleData(Earthquake centralPoint, List<Earthquake> eqList)
+        {
+            List<BubbleModel> result = new List<BubbleModel>();
+            //FitPolynomial(eqList, 3);
+            foreach (Earthquake eq in eqList)
+            {
+                BubbleModel bubble = new BubbleModel();
+                bubble.x = (double)(eq.Latitude - centralPoint.Latitude);
+                if (bubble.x > 90)
+                    bubble.x -= 90;
+                else if (bubble.x < -90)
+                    bubble.x += 90;
+
+                bubble.y = (double)(eq.Longitude - centralPoint.Longitude);
+
+                if (bubble.y > 180)
+                {
+                    bubble.y -= 180;
+                }
+                else if (bubble.y < -180)
+                {
+                    bubble.y += 180;
+                }
+
+                bubble.r = GetBubbleRadius(eq.Magnitude);
+                result.Add(bubble);
+            }
+
+            return result;
+        }
+
+        private int GetBubbleRadius(double magnitude)
+        {
+            return 5; //((int) magnitude)*3;
+        }
+
+        [AjaxMethod]
+        public List<Earthquake> GetCurveData(List<Earthquake> eqList, int region)
+        {
+            int order = 5;
+
+            int regionAmerica = 1;
+            int regionAsia = 2;
+            //double[] coef = Fit.Polynomial(eqList.Where(t=> t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125).Select(t => (double) t.Latitude).ToArray(), eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125).Select(t => (double) t.Longitude).ToArray(), order);
+            double[] coef;
+
+            if(region == regionAmerica)
+                coef = Fit.Polynomial(eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125).Select(t => (double)t.Latitude).ToArray(), eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125).Select(t => (double)t.Longitude).ToArray(), order);
+            else
+                coef = Fit.Polynomial(eqList.Where(t => t.Latitude < 55 && t.Latitude > -55 && t.Longitude < 170 && t.Longitude > 75).Select(t => (double)t.Latitude).ToArray(), eqList.Where(t => t.Latitude < 55 && t.Latitude > -55 && t.Longitude < 170 && t.Longitude > 75).Select(t => (double)t.Longitude).ToArray(), order);
+
+            //Tuple<double, double> coefExpo = Fit.Exponential(
+            //    eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125)
+            //        .Select(t => (double) t.Latitude)
+            //        .ToArray(),
+            //    eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < -70 && t.Longitude > -125)
+            //        .Select(t => (double) t.Longitude)
+            //        .ToArray(), DirectRegressionMethod.QR);
+
+
+
+
+
+            List<Earthquake> result = new List<Earthquake>();
+
+            double minLat;
+            if (region == regionAmerica)
+                minLat =
+                    (double) eqList.Where(t => t.Latitude < 70 && t.Latitude > -70 && t.Longitude < -70 && t.Longitude > -125).Min(t => t.Latitude);
+            else
+                minLat = (double) eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < 180 && t.Longitude > 85).Min(t => t.Latitude);
+
+
+            double maxLat;
+            if(region == regionAmerica)
+                maxLat = (double) eqList.Where(t => t.Latitude < 70 && t.Latitude > -70 && t.Longitude < -70 && t.Longitude > -125).Max(t => t.Latitude);
+            else
+                maxLat = (double) eqList.Where(t => t.Latitude < 50 && t.Latitude > -50 && t.Longitude < 180 && t.Longitude > 85).Max(t => t.Latitude);
+
+            while (minLat < maxLat)
+            {
+                double lon = 0;
+                for (int i = 0; i <= order; i++)
+                {
+                    lon += Math.Pow(minLat, i)*coef[i]; // + Math.Pow(minLat, 2)*coef[2] + minLat*coef[1] + coef[0];
+                }
+                Earthquake eq = new Earthquake();
+                eq.EventDate = DateTime.Now;
+                eq.Latitude = (decimal)minLat;
+                eq.Longitude = (decimal)lon;
+                result.Add(eq);
+                minLat += 0.1;
+            }
+
+            return result;
+        }
+
 
     }
 }
