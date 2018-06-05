@@ -4,7 +4,7 @@
     <asp:Label runat="server" ID="lblTest"></asp:Label>
     <button id="btnTest" onclick="return getMessage();">Test</button>
 
-        <style>
+    <style>
         .legend label,
         .legend span {
             display: block;
@@ -60,7 +60,7 @@
     </style>
 
     <%--<h2>Parameters</h2>--%>
-<%--    <div class="well" style="margin-top: 4%;">
+    <%--    <div class="well" style="margin-top: 4%;">
 
         <div class="container">
             <div class="col-md-4">
@@ -137,105 +137,128 @@
     </div>--%>
     <div class="row">
         <div class="container">
-            <div class="col-lg-2" style="height: 800px; margin-top: 4%;">
-                <div class="well" style="height: 100%">
- 
-                        <div class="panel panel-success">
-                            <div class="panel-heading">Date Range</div>
-                            <div class="panel-body">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <%--<label class="col-sm-2 control-label" for="dtpStartDate">Start Time</label>--%>
-                                        <div class="input-group date" id="dtpStartDate">
-                                            <input type="text" class="form-control" placeholder="Start Time" id="txtStartDate" />
-                                            <span class="input-group-addon">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-                                    </div>                            
-                                </div>
-                    
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <%--<label class="col-sm-2 control-label" for="dtpEndDate">End Time</label>--%>
-                                        <div class="input-group date" id="dtpEndDate">
-                                            <input type="text" class="form-control" placeholder="End Time" id="txtEndDate" />
-                                            <span class="input-group-addon">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-                                    </div>         
-                                </div>     
-                            </div>
-                        </div>
-                      
-                    
+            <div class="col-lg-2" style="height: 840px; margin-top: 4%;">
+                <div class="well" style="height: 100%; padding: 15px 7px">
 
-                        <div class="panel panel-success">
-                            <div class="panel-heading">Location Range</div>
-                            <div class="panel-body">                    
-                                <div class="col-md-12">
-                                    <input type="text" class="form-control" placeholder="Min. Latitude" id="txtMinLatitude" />
+                    <div class="panel panel-success">
+                        <div class="panel-heading" style="padding: 5px 15px">Date Range</div>
+                        <div class="panel-body" style="padding: 7px">
+                            <div class="col-md-12">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <%--<label class="col-sm-2 control-label" for="dtpStartDate">Start Time</label>--%>
+                                    <div class="input-group date" id="dtpStartDate">
+                                        <input type="text" class="form-control" placeholder="Start Time" id="txtStartDate" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
                                 </div>
-                                
-                                <div class="col-md-12" style="margin-top: 5%">
-                                    <input type="text" class="form-control" placeholder="Max. Latitude" id="txtMaxLatitude" />
-                                </div>
-                    
-                                <div class="col-md-12" style="margin-top: 5%">
-                                    <input type="text" class="form-control" placeholder="Min. Longitude" id="txtMinLongitude" />
-                                </div>
-                                
-                                <div class="col-md-12" style="margin-top: 5%">
-                                    <input type="text" class="form-control" placeholder="Max. Longitude" id="txtMaxLongitude" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group" style="margin-top: 5%; margin-bottom: 0">
+                                    <%--<label class="col-sm-2 control-label" for="dtpEndDate">End Time</label>--%>
+                                    <div class="input-group date" id="dtpEndDate">
+                                        <input type="text" class="form-control" placeholder="End Time" id="txtEndDate" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    
-                        <div class="col-md-12" style="margin-top: 10px">
-                            <input type="text" class="form-control" placeholder="Min. Magnitude" id="txtMagnitude" />
+                    </div>
+
+
+
+                    <div class="panel panel-success">
+                        <div class="panel-heading" style="padding: 5px 15px">Location Range</div>
+                        <div class="panel-body" style="padding: 7px">
+                            <div class="col-md-6" style="padding-right: 5px">
+                                <input type="text" class="form-control" placeholder="Min. Latitude" id="txtMinLatitude" />
+                            </div>
+
+
+                            <div class="col-md-6" style="padding-left: 2px">
+                                <input type="text" class="form-control" placeholder="Max. Latitude" id="txtMaxLatitude" />
+                            </div>
+
+                            <div class="col-md-6" style="margin-top: 3%; padding-right: 5px">
+                                <input type="text" class="form-control" placeholder="Min. Longitude" id="txtMinLongitude" />
+                            </div>
+                            
+                            <div class="col-md-6" style="margin-top: 3%; padding-left: 2px">
+                                <input type="text" class="form-control" placeholder="Max. Longitude" id="txtMaxLongitude" />
+                            </div>
                         </div>
-                    
-                        <div class="col-md-12" style="margin-top: 10px">
+                    </div>
 
-                            <label for="workType">Data Type:</label>
-                            <input type="checkbox" id="workType" checked="checked" data-off-text="Sample" data-on-text="Real" />
+                    <div class="panel panel-success">
+                        <div class="panel-heading" style="padding: 5px 15px">Depth & Magnitude Range</div>
+                        <div class="panel-body" style="padding: 7px">
+                            <div class="col-md-12">
+                                <input type="text" class="form-control" placeholder="Min. Depth" id="txtMinDepth" />
+                            </div>
+                           
+                            <div class="col-md-12" style="margin-top: 2%">
+                                <input type="text" class="form-control" placeholder="Max. Depth" id="txtMaxDepth" />
+                            </div>
+
+                            <div class="col-md-12" style="margin-top: 5%">
+                                <input type="text" class="form-control" placeholder="Min. Magnitude" id="txtMagnitude" />
+                            </div>
+
+                            <div class="col-md-12" style="margin-top: 2%">
+                                <input type="text" class="form-control" placeholder="Max. Magnitude" id="txtMaxMagnitude" />
+                            </div>
+                        </div>
+                    </div>
 
 
 
-                            <%--<select name="slider" id="workType" data-role="slider">
+                    <div class="col-md-12" style="margin-top: 10px">
+
+                        <label for="workType">Data Type:</label>
+                        <input type="checkbox" id="workType" checked="checked" data-off-text="Sample" data-on-text="Real" data-size="small"/>
+
+
+
+                        <%--<select name="slider" id="workType" data-role="slider">
                                 <option value="off">Offline</option>
                                 <option value="on">Online</option>
                             </select>--%>
-                        </div>
-<%--                        <div class="col-md-2">
+                    </div>
+                    <%--                        <div class="col-md-2">
                             <input type="text" class="form-control" id="txtStep" placeholder="Step (Degrees)" />
                         </div>
                         <div class="col-md-1"></div>--%>
-                    
-                    
-                        <div class="col-md-12" style="margin-top: 10px">
-                            <label for="mapType">Heat Map:</label>
-                            <input type="checkbox" id="mapType" data-off-text="Off" data-on-text="On" />
-                        </div>
-                         <div class="col-md-12" style="margin-top: 10px">
-                            <label for="curveFit">Curve Fitting:</label>
-                            <input type="checkbox" id="curveFit" data-off-text="Off" data-on-text="On" />
-                        </div>                   
-                    
-                        <div class="col-md-12" style="margin-top: 15px">
-                            <button type="button" class="btn btn-block btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
-                        </div>
-                        <%--<div class="col-md-1" style="width: 6%; margin-top: 10px"></div>--%>
-                        <div class="col-md-12" style="margin-top: 15px">
-                            <button type="button" class="btn btn-block btn-success" id="btnCentralize" onclick="return centralize();">Centralise</button>
-                        </div>
-                    
+                    <div class="col-md-12" style="margin-top: 10px">
+                        <label for="isMahalanobis">Distance: </label>
+                        <input type="checkbox" id="isMahalanobis" data-off-text="Euclidean" data-on-text="Mahalanobis" data-size="small" width="50%"/>
+                    </div>
+
+                    <div class="col-md-12" style="margin-top: 10px">
+                        <label for="mapType">Heat Map:</label>
+                        <input type="checkbox" id="mapType" data-off-text="Off" data-on-text="On" data-size="small" />
+                    </div>
+                    <div class="col-md-12" style="margin-top: 10px">
+                        <label for="curveFit">Curve Fitting:</label>
+                        <input type="checkbox" id="curveFit" data-off-text="Off" data-on-text="On" data-size="small" />
+                    </div>
+
+                    <div class="col-md-12" style="margin-top: 20%">
+                        <button type="button" class="btn btn-block btn-success" id="btnSearch" onclick="return searchEarthquakes();">Search</button>
+                    </div>
+                    <%--<div class="col-md-1" style="width: 6%; margin-top: 10px"></div>--%>
+                    <div class="col-md-12" style="margin-top: 15px">
+                        <button type="button" class="btn btn-block btn-success" id="btnCentralize" onclick="return centralize();">Centralise</button>
+                    </div>
+
                 </div>
 
             </div>
-            <div class="col-lg-10" style="height: 800px; margin-top: 4%; padding-left: 1%">
-                <div id="map" style="height: 800px;">
+            <div class="col-lg-10" style="height: 840px; margin-top: 4%; padding-left: 1%">
+                <div id="map" style="height: 840px;">
                 </div>
             </div>
         </div>
@@ -254,19 +277,18 @@
             <label>< 3</label>
             <label>3 - 4.9</label>
             <label>5 - 5.9</label>
-            <label>6 - 7</label>
-            <label>7 < </label>
+            <label>6 - 6.9</label>
+            <label>7 =< </label>
             <small>Magnitude Scale</small>
         </nav>
     </div>
-    
-    <div class="row" id="chartRow">
-        
+
+    <div class="row" id="chartRow" style="margin-top: 4%">
     </div>
 
-    
 
-<%--    <div class="row">
+
+    <%--    <div class="row">
 
 
         <div class="col-lg-12">
@@ -292,6 +314,7 @@
         var toggleableLayerIds = ['contours', 'museums'];
         var centralPoints = [];
         var polylines = [];
+        var platePolyLines = [];
 
         $(document).ready(function () {
             init();
@@ -302,6 +325,7 @@
             $("#workType").bootstrapSwitch();
             $("#mapType").bootstrapSwitch();
             $("#curveFit").bootstrapSwitch();
+            $("#isMahalanobis").bootstrapSwitch();
             $("#curveFit").on('switchChange.bootstrapSwitch', function (event, state) {
                 if (state) {
                     showPolyLines();
@@ -311,6 +335,8 @@
             });
             loadMap();
             myLayer = L.mapbox.featureLayer();
+            //plateLayer = L.mapbox.featureLayer();
+            bindPlateLayer();
             //addLayerToggles();
 
             //initChart();
@@ -322,7 +348,7 @@
             var ctx = document.getElementById(chartId).getContext('2d');
             //document.getElementById(chartId).className = "col-lg-3";
             //document.getElementById(chartId).style.height = "400px";
-            
+
 
             myChart = new Chart(ctx,
             {
@@ -374,7 +400,7 @@
 
             L.mapbox.accessToken = 'pk.eyJ1Ijoic2ltc2VrYm8iLCJhIjoiY2lpMDN2ODUyMDRuYXQzbTF4Z3FqNnR3diJ9.lNEjQ2Yb3mrtvOFFwz5B_Q';
             map = L.mapbox.map('map', 'mapbox.light')
-                .setView([39, 35.50], 5);
+                .setView([0, 0], 2);
             map.legendControl.addLegend(document.getElementById('legend').innerHTML);
             map.on('zoomend', function () {
                 if (centerLayer != null) {
@@ -442,6 +468,7 @@
         function searchEarthquakes() {
             clearPolylines();
             clearCentrography();
+            clearCharts();
             setParametersToDefault();
             map.removeLayer(myLayer);
             //if (centerGeoJson != null)
@@ -453,18 +480,23 @@
 
             var dateStart = $("#txtStartDate").val();
             var dateEnd = $("#txtEndDate").val();
-            var mag = $("#txtMagnitude").val();
+            var minMag = $("#txtMagnitude").val();
+            var maxMag = $("#txtMaxMagnitude").val();
+
             var minLat = $("#txtMinLatitude").val();
             var maxLat = $("#txtMaxLatitude").val();
             var minLng = $("#txtMinLongitude").val();
             var maxLng = $("#txtMaxLongitude").val();
+            var minDepth = $("#txtMinDepth").val();
+            var maxDepth = $("#txtMaxDepth").val();
+            
             if ($("#workType").bootstrapSwitch("state")) {
-                var res = CentroAjax.GetEarthquakes(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                var res = CentroAjax.GetEarthquakes(dateStart, dateEnd, minMag, maxMag, minLat, maxLat, minLng, maxLng, minDepth, maxDepth);
                 var list = res.value;
                 curList = list;
                 bindEarthquakes(list);
             } else {
-                var res = CentroAjax.GetEarthquakesOffline(dateStart, dateEnd, mag, minLat, maxLat, minLng, maxLng);
+                var res = CentroAjax.GetEarthquakesOffline(dateStart, dateEnd, minMag, maxMag, minLat, maxLat, minLng, maxLng, minDepth, maxDepth);
                 //var res = CentroAjax.GetEarthquakesOffline();
                 var list = res.value;
                 curList = list;
@@ -541,7 +573,7 @@
             res.properties = {};
             res.properties.title = item.Title;
             res.properties.magnitude = item.Magnitude;
-            res.properties.description = "Mag: " + item.Magnitude + " - Depth: " + item.Depth + " - " + item.AlertType + " - " + item.EventDate;
+            res.properties.description = "<p>Mag: <b>" + item.Magnitude + "</b></p> <p>Depth: <b>" + item.Depth + " km</b></p> <p>Date: <b>" + formatDate(item.EventDate) + "</b></p>";
             res.properties.depth = item.Depth;
             //res.properties['marker-size'] = 'small';
             //res.properties['marker-color'] = '#BE9A6B';
@@ -618,11 +650,15 @@
 
         function centralize() {
             clearPolylines();
+            clearCharts();
             setParametersToDefault();
-            
+
             var step = $("#txtStep").val();
             //var res = CentroAjax.CentralizeTest(curList, step);
-            var res = CentroAjax.CentraliseRecursive(curList);
+
+            var isMahalanobis = $("#isMahalanobis").bootstrapSwitch('state');
+            //isMahalanobis
+            var res = CentroAjax.CentraliseRecursive(curList, isMahalanobis);
             var list = res.value;
             bindCentralizedEarthquakes(list);
             bindHistograms(list);
@@ -637,7 +673,7 @@
             list.forEach(function (item) {
                 var parentId = 'parent' + count;
                 var chartId = 'chart' + count;
-                
+
 
                 jQuery('<div/>', {
                     id: parentId,
@@ -650,7 +686,7 @@
                     id: chartId,
                 }).appendTo('#' + parentId);
 
-                
+
                 //var chart = document.getElementById('chartId').getContext('2d');
                 var res = CentroAjax.GetHistogram(item, curList);
                 var histData = res.value;
@@ -662,7 +698,7 @@
         function bindScatterChart(list) {
             var count = 1;
 
-            list.forEach(function(item) {
+            list.forEach(function (item) {
                 var parentId = 'parentSc' + count;
                 var chartId = 'chartSc' + count;
 
@@ -688,7 +724,7 @@
             });
         }
 
-        
+
 
         function drawScatterChart(chartId, dataList) {
             var ctx = document.getElementById(chartId).getContext('2d');
@@ -824,7 +860,7 @@
         }
 
         function showPolyLines() {
-            polylines.forEach(function(polyline) {
+            polylines.forEach(function (polyline) {
                 polyline.addTo(map);
             });
         }
@@ -837,11 +873,18 @@
 
 
         function clearPolylines() {
-            polylines.forEach(function(item) {
+            polylines.forEach(function (item) {
                 map.removeLayer(item);
             });
 
             polylines = [];
+        }
+
+        function clearCharts() {
+            var myNode = document.getElementById("chartRow");
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
         }
 
         function clearCentrography() {
@@ -852,6 +895,79 @@
 
         function setParametersToDefault() {
             $('#curveFit').bootstrapSwitch('state', false, true);
+        }
+
+        function bindPlateLayer() {
+            var result = CentroAjax.BindPlateBoundaries();
+            var list = result.value;
+
+            list.forEach(function (item) {
+                drawPlatePolyLines(item);
+            });
+
+            showPlates();
+
+        }
+
+        function drawPlatePolyLines(lineList) {
+            var plateLatLng = [];
+            var list = lineList.BoundaryList;
+            list.forEach(function (item) {
+                var latLng = new L.LatLng(item.Longitude, item.Latitude);
+                plateLatLng.push(latLng);
+            });
+
+            //var pointA = new L.LatLng(20.635308, 70.22496);
+            //var pointB = new L.LatLng(30.984461, 80.70641);
+            //var pointList = [pointA, pointB];
+
+            var polyline = new L.Polyline(plateLatLng, {
+                color: 'red',
+                weight: 1,
+                opacity: 0.5,
+                smoothFactor: 1
+            });
+
+            platePolyLines.push(polyline);
+            //var polyline = L.polyline(curveList, { color: 'blue' }).addTo(map);
+        }
+
+        function showPlates() {
+            platePolyLines.forEach(function (polyline) {
+                polyline.addTo(map);
+            });
+        }
+
+        function hidePlates() {
+            platePolyLines.forEach(function (item) {
+                map.removeLayer(item);
+            });
+        }
+
+
+        function clearPlates() {
+            platePolyLines.forEach(function (item) {
+                map.removeLayer(item);
+            });
+
+            platePolyLines = [];
+        }
+
+        function formatDate(date) {
+
+
+            return date.format("dd.MM.yyyy HH:mm");
+            //var day = date.getDate();
+            //var monthIndex = date.getMonth();
+            //var year = date.getFullYear();
+
+            //return padLeftWithZero(day) + '.' + padLeftWithZero((monthIndex + 1)) + '.' + year + " " + padLeftWithZero(date.getHours()) + ":" + padLeftWithZero(date.getMinutes());
+        }
+
+        function padLeftWithZero(text) {
+            var pad = "00";
+            var result = pad.substring(0, pad.length - text.length) + text;
+            return result;
         }
     </script>
 

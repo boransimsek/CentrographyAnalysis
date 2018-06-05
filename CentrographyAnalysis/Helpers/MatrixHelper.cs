@@ -109,7 +109,7 @@ namespace CentrographyAnalysis.Helpers
             return result;
         }
 
-        private static double[,] GetMahalanobisMatrix(double[,] mainMatrix)
+        public static double[,] GetMahalanobisMatrix(double[,] mainMatrix)
         {
             int rowMain = mainMatrix.GetUpperBound(0) + 1;
             int colMain = mainMatrix.Length / rowMain;

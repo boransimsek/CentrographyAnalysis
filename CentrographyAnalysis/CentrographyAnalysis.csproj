@@ -59,6 +59,14 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="gdalconst_csharp, Version=1.0.5387.28601, Culture=neutral, PublicKeyToken=db5a52b08dc5b321, processorArchitecture=MSIL">
+      <HintPath>..\packages\GDAL.1.11.1\lib\net40\gdalconst_csharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="gdal_csharp, Version=1.0.5387.28601, Culture=neutral, PublicKeyToken=db5a52b08dc5b321, processorArchitecture=MSIL">
+      <HintPath>..\packages\GDAL.1.11.1\lib\net40\gdal_csharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=4.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.4.0\lib\net461\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
@@ -68,6 +76,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="ogr_csharp, Version=1.0.5387.28600, Culture=neutral, PublicKeyToken=db5a52b08dc5b321, processorArchitecture=MSIL">
+      <HintPath>..\packages\GDAL.1.11.1\lib\net40\ogr_csharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="osr_csharp, Version=1.0.5387.28600, Culture=neutral, PublicKeyToken=db5a52b08dc5b321, processorArchitecture=MSIL">
+      <HintPath>..\packages\GDAL.1.11.1\lib\net40\osr_csharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -233,6 +249,7 @@
     <Content Include="ClassDiagram1.cd" />
     <None Include="Properties\PublishProfiles\CentroPub.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="GdalConfiguration.vb" />
     <Content Include="Scripts\bootstrap-datetimepicker.js" />
     <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\bootstrap-switch.js" />
@@ -293,6 +310,7 @@
     <Content Include="Site.Mobile.Master" />
     <Content Include="Scripts\leaflet.markercluster.js" />
     <Content Include="Source\2016_2010.json" />
+    <Content Include="Source\plateBoundaries.json" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -339,6 +357,7 @@
     <Compile Include="DesignTestPage.aspx.designer.cs">
       <DependentUpon>DesignTestPage.aspx</DependentUpon>
     </Compile>
+    <Compile Include="GdalConfiguration.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -354,6 +373,12 @@
     <Compile Include="Models\HistogramModels\ScatterModel.cs" />
     <Compile Include="Models\MahalanobisEarthquake.cs" />
     <Compile Include="Models\Metadata.cs" />
+    <Compile Include="Models\PlateBoundaryModels\Coordinate.cs" />
+    <Compile Include="Models\PlateBoundaryModels\Feature.cs" />
+    <Compile Include="Models\PlateBoundaryModels\Geometry.cs" />
+    <Compile Include="Models\PlateBoundaryModels\PlateBoundary.cs" />
+    <Compile Include="Models\PlateBoundaryModels\Properties.cs" />
+    <Compile Include="Models\PlateBoundaryModels\PlateBoundaryData.cs" />
     <Compile Include="Models\Properties.cs" />
     <Compile Include="Models\RootObject.cs" />
     <Compile Include="Models\TestObject.cs" />

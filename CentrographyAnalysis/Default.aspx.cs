@@ -9,8 +9,10 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using AjaxPro;
+using CentrographyAnalysis.Helpers;
 using CentrographyAnalysis.Models;
 using CentrographyAnalysis.Models.HistogramModels;
+using CentrographyAnalysis.Models.PlateBoundaryModels;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearRegression;
 
@@ -76,13 +78,14 @@ namespace CentrographyAnalysis
         }
 
         [AjaxMethod]
-        public List<Earthquake> GetEarthquakes(string dateStart, string dateEnd, string mag, string minLat, string maxLat, string minLng, string maxLng)
+        public List<Earthquake> GetEarthquakes(string dateStart, string dateEnd, string mag, string maxMag, string minLat, string maxLat, string minLng, string maxLng, string minDepth, string maxDepth)
         {
             string baseURL = "http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time";
             //string parameters =
             //    "&starttime=2016-01-01&minmagnitude=3&minlatitude=35&maxlatitude=45&minlongitude=25&maxlongitude=46";
-            string parameters = "&starttime=" + dateStart + "&endtime=" + dateEnd + "&minmagnitude=" + mag +
-                                "&minlatitude=" + minLat + "&maxlatitude=" + maxLat
+            string parameters = "&starttime=" + dateStart + "&endtime=" + dateEnd + "&minmagnitude=" + mag 
+                                + "&maxmagnitude=" + maxMag + "&mindepth=" + minDepth + "&maxdepth=" + maxDepth
+                                + "&minlatitude=" + minLat + "&maxlatitude=" + maxLat
                                 + "&minlongitude=" + minLng + "&maxlongitude=" + maxLng;
             var syncClient = new WebClient();
             var content = syncClient.DownloadString(baseURL + parameters);
@@ -99,11 +102,12 @@ namespace CentrographyAnalysis
 
                 //return dt.ToString("dd.MM.yyyy HH:mm:ss");
             }
+            
         }
 
         [AjaxMethod]
-        public List<Earthquake> GetEarthquakesOffline(string dateStart, string dateEnd, string mag, string minLat,
-            string maxLat, string minLng, string maxLng)
+        public List<Earthquake> GetEarthquakesOffline(string dateStart, string dateEnd, string mag, string maxMag, string minLat,
+            string maxLat, string minLng, string maxLng, string minDepth, string maxDepth)
         {
             using (var context = new Context())
             {
@@ -295,7 +299,7 @@ namespace CentrographyAnalysis
 
 
         [AjaxMethod]
-        public List<Earthquake> CentraliseRecursive(List<Earthquake> list)
+        public List<Earthquake> CentraliseRecursive(List<Earthquake> list, bool isMahalanobis)
         {
             List<Earthquake> result = new List<Earthquake>();
 
@@ -303,16 +307,18 @@ namespace CentrographyAnalysis
             bool isWeighted = true;
 
             int occurTime = 0;
-            while (excludedEarthquakes.Count() < list.Count * 0.7)
+            double distanceRange = GetMaximumDistance(list);
+            double loopCoef = GetIterationCoefByMaxDistance(distanceRange);
+            while (excludedEarthquakes.Count() < list.Count * loopCoef)
             {
                 occurTime++;
                 List<Earthquake> remainingEarthquakes = list.Where(t => !excludedEarthquakes.Contains(t)).ToList();
 
-                Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime, isWeighted);
+                Earthquake centreEarthquake = CalculateCentralEarthquake(remainingEarthquakes, occurTime, isWeighted, isMahalanobis);
                 centreEarthquake.Depth = remainingEarthquakes.Count;
                 centreEarthquake.EventDate = DateTime.Today;
-
-                if (centreEarthquake.Magnitude <= (0.02 * GetMaximumDistance(list)))
+                
+                if (centreEarthquake.Magnitude <= (GetDistanceCoefficientByMaxDistance(distanceRange, isToVerify: true) * distanceRange))
                 {
                     result.Add(centreEarthquake);
                 }
@@ -384,7 +390,7 @@ namespace CentrographyAnalysis
 
 
 
-        private Earthquake CalculateCentralEarthquake(List<Earthquake> list, int occurTime, bool isWeighted)
+        private Earthquake CalculateCentralEarthquake(List<Earthquake> list, int occurTime, bool isWeighted, bool isMahalanobis)
         {
             int loopMax;
             if (occurTime == 1)
@@ -393,6 +399,7 @@ namespace CentrographyAnalysis
                 loopMax = (int)(list.Count * 0.7);
 
             double distanceRange = GetMaximumDistance(list);
+            double distCoef = GetDistanceCoefficientByMaxDistance(distanceRange, isToVerify: false);
 
             for (int i = 0; i < loopMax; i++)
             {
@@ -402,17 +409,38 @@ namespace CentrographyAnalysis
                 else
                     avgEarthquakeCurrent = GetAverageEarthquakePoint(list);
 
-                Earthquake furthestEarthquake = GetFurthestEarthquake(list, avgEarthquakeCurrent);
+                Earthquake furthestEarthquake;
+                if (isMahalanobis)
+                {
+                    furthestEarthquake = GetFurthestByMahalanobis(list);
+                }
+                else
+                {
+                    furthestEarthquake = GetFurthestEarthquake(list, avgEarthquakeCurrent);
+                }
+
 
                 double distanceFurthest = GetDistance(furthestEarthquake, avgEarthquakeCurrent);
-                if (distanceFurthest <= (0.02 * distanceRange))
+                if (distanceFurthest <= ( distCoef * distanceRange))
                     break;
 
                 list.Remove(furthestEarthquake);
             }
 
-            Earthquake finalAverageEarthquake = isWeighted ? GetWeightedAverageEarthquakePoint(list) : GetAverageEarthquakePoint(list);
-            Earthquake finalFurthestEarthquake = GetFurthestEarthquake(list, finalAverageEarthquake);
+            Earthquake finalAverageEarthquake;
+            
+            
+            Earthquake finalFurthestEarthquake;
+            if (isMahalanobis)
+            {
+                finalAverageEarthquake = GetAverageEarthquakePoint(list);
+                finalFurthestEarthquake = GetFurthestByMahalanobis(list);
+            }
+            else
+            {
+                finalAverageEarthquake = isWeighted ? GetWeightedAverageEarthquakePoint(list) : GetAverageEarthquakePoint(list);
+                finalFurthestEarthquake = GetFurthestEarthquake(list, finalAverageEarthquake);
+            }
 
             double circleRadius = GetDistance(finalAverageEarthquake, finalFurthestEarthquake);
             finalAverageEarthquake.Magnitude = circleRadius;
@@ -579,6 +607,58 @@ namespace CentrographyAnalysis
             return distance;
         }
 
+        private double GetDistanceCoefficientByMaxDistance(double maxDistance, bool isToVerify)
+        {
+            double result = 0.02;
+            if (maxDistance < 3000)
+            {
+                result = 0.12;
+            }
+            else if (maxDistance < 6000)
+            {
+                result = 0.06;
+            }
+            else if (maxDistance < 12000)
+            {
+                if (isToVerify)
+                    result = 0.05;
+                else
+                    result = 0.04;
+            }
+            else if (maxDistance < 20000)
+            {
+                if (isToVerify)
+                    result = 0.04;
+                else
+                    result = 0.03;
+            }
+            else
+            {
+                if (isToVerify)
+                    result = 0.03;
+                else
+                    result = 0.02;
+            }
+
+            return result;
+        }
+
+        private double GetIterationCoefByMaxDistance(double maxDistance)
+        {
+            double result = 0.7;
+
+            if (maxDistance < 10000)
+            {
+                result = 0.65;
+            }
+            else
+            {
+                result = 0.78;
+            }
+
+            return result;
+        }
+
         [AjaxMethod]
         public List<int> GetEarthquakeHistogram()
         {
@@ -740,6 +820,104 @@ namespace CentrographyAnalysis
             return result;
         }
 
+        [AjaxMethod]
+        public List<PlateBoundary> BindPlateBoundaries()
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PlateBoundaryData));
+            string dir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            using (StreamReader reader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + @"/Source/plateBoundaries.json"))
+            {
+                string content = reader.ReadToEnd();
+                using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+                {
+                    var data = (PlateBoundaryData)serializer.ReadObject(ms);
+                    return ConvertBoundaryDataToList(data);
+                    //long milSec = Convert.ToInt64(data.features[0].properties.time.ToString());
+                    //DateTime dt = new DateTime(1970, 1, 1);
+                    //dt = dt.AddMilliseconds(milSec);
 
+                    //return dt.ToString("dd.MM.yyyy HH:mm:ss");
+                }
+            }
+
+            
+            
+        }
+
+        public List<PlateBoundary> ConvertBoundaryDataToList(PlateBoundaryData data)
+        {
+            List<PlateBoundary> result = new List<PlateBoundary>();
+
+            foreach (var feature in data.features)
+            {
+                PlateBoundary item = new PlateBoundary();
+                foreach (List<double> geometryCoordinate in feature.geometry.coordinates)
+                {
+                    Coordinate coordinate = new Coordinate()
+                    {
+                        Latitude = geometryCoordinate[0],
+                        Longitude = geometryCoordinate[1]
+                    };
+                    item.BoundaryList.Add(coordinate);
+                }
+
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        private Earthquake GetFurthestByMahalanobis(List<Earthquake> eqList)
+        {
+            List<MahalanobisEarthquake> mahEqList = new List<MahalanobisEarthquake>();
+
+            double[,] coordinates = new double[eqList.Count, 2];
+
+            for (int i = 0; i < eqList.Count; i++)
+            {
+                coordinates[i, 0] = (double) eqList[i].Latitude;
+                coordinates[i, 1] = (double) eqList[i].Longitude;
+            }
+
+
+
+            double[,] distanceMatrix = MatrixHelper.GetMahalanobisMatrix(coordinates);
+            int furthestIndex = GetIndexOfMaximumDistance(distanceMatrix);
+
+            return eqList[furthestIndex];
+        }
+
+        private int GetIndexOfMaximumDistance(double[,] distMatrix)
+        {
+            int result = 0;
+
+            for (int i = 1; i < Math.Sqrt(distMatrix.Length); i++)
+            {
+                if (distMatrix[i, i] > distMatrix[result, result])
+                {
+                    result = i;
+                }
+            }
+
+            return result;
+        }
+
+        private Earthquake GetFurthestEarthquake2(List<Earthquake> list, Earthquake avgEarthquake)
+        {
+            double distMax = 0;
+            Earthquake result = list[0];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                double dist = GetDistance(list[i], avgEarthquake);
+                if (dist > distMax)
+                {
+                    distMax = dist;
+                    result = list[i];
+                }
+            }
+
+            return result;
+        }
     }
 }
