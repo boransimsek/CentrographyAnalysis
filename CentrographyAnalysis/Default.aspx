@@ -407,6 +407,7 @@
                     centralizeTest();
                 }
             });
+            L.control.scale().addTo(map);
             //heat = L.heatLayer([], { maxZoom: 10 }).addTo(map);
             //map.on("click", function (ev) {
             //    //addMarkerOnClick(ev);
